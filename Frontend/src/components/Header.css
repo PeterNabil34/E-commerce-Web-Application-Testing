@@ -1,0 +1,38 @@
+.header {
+    background-color: #232f3e;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .header .logo {
+    font-size: 24px;
+    color: #fff;
+  }
+  
+  .header .logo a {
+    text-decoration: none;
+    color: white;
+  }
+  
+  .header .search-bar {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .header .search-bar input {
+    padding: 8px;
+    width: 70%;
+    margin-right: 10px;
+  }
+  
+  .header .cart {
+    font-size: 18px;
+  }
+  
+  .header .cart a {
+    text-decoration: none;
+    color: white;
+  }

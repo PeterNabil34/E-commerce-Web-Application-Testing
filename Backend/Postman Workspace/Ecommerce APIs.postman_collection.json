@@ -1,0 +1,534 @@
+{
+	"info": {
+		"_postman_id": "749efab1-a4e1-458f-a71b-e13d6354b173",
+		"name": "Ecommerce APIs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40778664"
+	},
+	"item": [
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Get All Products",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status Code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Schema is an array of products\", () => {\r",
+									"    pm.response.to.have.jsonSchema({\r",
+									"        type: \"array\",\r",
+									"        items: {\r",
+									"            type: \"object\",\r",
+									"            properties: {\r",
+									"                id: {type: \"number\"},\r",
+									"                name: {type: \"string\"},\r",
+									"                price: {type: \"number\"},\r",
+									"                stock: {type: \"number\"},\r",
+									"                description: {type: \"string\"}\r",
+									"            },\r",
+									"            require: [\"id\", \"name\", \"price\", \"stock\", \"description\"]\r",
+									"        }\r",
+									"    })\r",
+									"})\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Ecommerce_url}}/products",
+							"host": [
+								"{{Ecommerce_url}}"
+							],
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product Details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status Code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Schema is a product's details\", () => {\r",
+									"    pm.response.to.have.jsonSchema({\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: {type: \"number\"},\r",
+									"            name: {type: \"string\"},\r",
+									"            price: {type: \"number\"},\r",
+									"            stock: {type: \"number\"},\r",
+									"            description: {type: \"string\"} \r",
+									"        }\r",
+									"    })\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Response time is less than 500ms\", () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"})\r",
+									"\r",
+									"pm.test(\"The Id of the response is the same sent in the request\", () => {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(parseInt(pm.globals.get(\"Ecommerce_session_id\"))).to.be.eq(responseBody.id);\r",
+									"})\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Ecommerce_url}}/products/{{Ecommerce_session_id}}",
+							"host": [
+								"{{Ecommerce_url}}"
+							],
+							"path": [
+								"products",
+								"{{Ecommerce_session_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product Details (Invalid Id)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status Code is 404\", () => {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Ecommerce_url}}/products/1020304050",
+							"host": [
+								"{{Ecommerce_url}}"
+							],
+							"path": [
+								"products",
+								"1020304050"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "Add Product to Cart",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status Code is 201\", () => {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema is an array of products in the cart\", () => {\r",
+									"    pm.response.to.have.jsonSchema({\r",
+									"        type: \"array\",\r",
+									"        items: {\r",
+									"            type: \"object\",\r",
+									"            properties: {\r",
+									"                productId: {type: \"number\"},\r",
+									"                quantity: {\"type\": \"number\"}\r",
+									"            },\r",
+									"            require: [\"productId\", \"quantity\"]\r",
+									"        }\r",
+									"    })\r",
+									"})\r",
+									"\r",
+									"pm.globals.set(\"Product_Id\", pm.response.json()[pm.response.json().length - 1].productId);\r",
+									"pm.globals.set(\"Product_Quantity\", pm.response.json()[pm.response.json().length - 1].quantity);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \r\n    \"productId\": 1, \r\n    \"quantity\": 1 \r\n} ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{Ecommerce_url}}/cart",
+							"host": [
+								"{{Ecommerce_url}}"
+							],
+							"path": [
+								"cart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check last product in cart",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status Code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Schema is an array of products in the cart\", () => {\r",
+									"    pm.response.to.have.jsonSchema({\r",
+									"        type: \"array\",\r",
+									"        items: {\r",
+									"            type: \"object\",\r",
+									"            properties: {\r",
+									"            productId : {type: \"number\"},\r",
+									"            quantity: {type: \"number\"},\r",
+									"            productName: {type: \"string\"},\r",
+									"            price: {type: \"number\"},\r",
+									"        },\r",
+									"        require: [\"productId\", \"quantity\"]\r",
+									"        }\r",
+									"    })\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Check last product added to the cart\", () => {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    g_Product_Id = pm.globals.get(\"Product_Id\");\r",
+									"    g_Product_Quantity = pm.globals.get(\"Product_Quantity\");\r",
+									"    pm.expect(g_Product_Id).equal(responseBody[responseBody.length - 1].productId)\r",
+									"    pm.expect(g_Product_Quantity).equal(responseBody[responseBody.length - 1].quantity)\r",
+									"})\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Ecommerce_url}}/cart",
+							"host": [
+								"{{Ecommerce_url}}"
+							],
+							"path": [
+								"cart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "View Cart",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status Code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Schema is an array of products in the cart\", () => {\r",
+									"    pm.response.to.have.jsonSchema({\r",
+									"        type: \"array\",\r",
+									"        items: {\r",
+									"            type: \"object\",\r",
+									"            properties: {\r",
+									"            productId : {type: \"number\"},\r",
+									"            quantity: {type: \"number\"},\r",
+									"            productName: {type: \"string\"},\r",
+									"            price: {type: \"number\"},\r",
+									"        },\r",
+									"        require: [\"productId\", \"quantity\"]\r",
+									"        }\r",
+									"    })\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Ecommerce_url}}/cart",
+							"host": [
+								"{{Ecommerce_url}}"
+							],
+							"path": [
+								"cart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Pre-Place an Order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseBody = pm.response.json();\r",
+									"/* Total price of all products in thh cart */\r",
+									"pm.globals.set(\"g_totalAmount\", 0);\r",
+									"for(let i = 0; i < responseBody.length; i++){\r",
+									"    pm.globals.set(\"g_totalAmount\", parseInt(pm.globals.get(\"g_totalAmount\")) + responseBody[i].price);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Ecommerce_url}}/cart",
+							"host": [
+								"{{Ecommerce_url}}"
+							],
+							"path": [
+								"cart"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Place an Order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status Code is 201\", () => {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema is a order's details\", () => {\r",
+									"    pm.response.to.have.jsonSchema({\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: {type: \"number\"},\r",
+									"            userId: {type: \"number\"},\r",
+									"            items: {\r",
+									"                type: \"array\",\r",
+									"                properties: {\r",
+									"                    productId: {type: \"number\"},\r",
+									"                    quantity: {type: \"number\"}\r",
+									"                }\r",
+									"            },\r",
+									"            totalAmount: {type: \"number\"},\r",
+									"        },\r",
+									"        require: [\"id\", \"userid\", \"items\", \"totalAmount\"]\r",
+									"    })\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Check on total amount\", () => {\r",
+									"    const responseBody = pm.response.json();\r",
+									"    pm.expect(parseInt(pm.globals.get(\"g_totalAmount\"))).to.be.equal(responseBody.totalAmount);\r",
+									"})\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \r\n    \"userId\": 1 \r\n} ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{Ecommerce_url}}/orders",
+							"host": [
+								"{{Ecommerce_url}}"
+							],
+							"path": [
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Orders",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status Code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema is an array of orders' details\", () => {\r",
+									"    pm.response.to.have.jsonSchema(\r",
+									"    {\r",
+									"        type: \"array\",\r",
+									"        items: {\r",
+									"            type: \"object\",\r",
+									"            properties: {\r",
+									"                id: {type: \"number\"},\r",
+									"                userId: {type: \"number\"},\r",
+									"                items: {\r",
+									"                    type: \"array\",\r",
+									"                    properties: {\r",
+									"                        productId: {type: \"number\"},\r",
+									"                        quantity: {type: \"number\"}\r",
+									"                    }\r",
+									"                },\r",
+									"                totalAmount: {type: \"number\"},\r",
+									"            },\r",
+									"            require: [\"id\", \"userid\", \"items\", \"totalAmount\"]\r",
+									"        }\r",
+									"    })\r",
+									"})\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Ecommerce_url}}/orders",
+							"host": [
+								"{{Ecommerce_url}}"
+							],
+							"path": [
+								"orders"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Add a New User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \r\n    \"name\": \"Peter Nabil\", \r\n    \"email\": \"peter.nabil@example.com\" \r\n} ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{Ecommerce_url}}/users",
+							"host": [
+								"{{Ecommerce_url}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Ecommerce_url}}/users",
+							"host": [
+								"{{Ecommerce_url}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
